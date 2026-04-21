@@ -46,12 +46,17 @@ export default {
       // 5. 组装发给真实 API 的请求
       const headers = new Headers();
       // 这里可以不限制，直接透传前端发来的大部分请求头
+      
       for (const [key, value] of request.headers.entries()) {
-        // 过滤掉 host 头，防止目标服务器解析错误
-        if (key.toLowerCase() !== 'host') {
+        const lowerKey = key.toLowerCase();
+        // 核心修复：剔除 accept-encoding
+        if (lowerKey !== 'host' && lowerKey !== 'accept-encoding') {
           headers.set(key, value);
         }
       }
+      
+      // 强制不压缩
+      headers.set('Accept-Encoding', 'identity');
 
       const fetchOptions: RequestInit = {
         method: request.method,
